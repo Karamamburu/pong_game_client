@@ -1,59 +1,68 @@
 import Phaser from "phaser";
 import { BALL_SPEED } from "./constants";
 
-export function addBallPaddleColliders(scene: Phaser.Scene, ball: Phaser.Types.Physics.Arcade.ImageWithDynamicBody, player: Phaser.Types.Physics.Arcade.ImageWithDynamicBody, opponent: Phaser.Types.Physics.Arcade.ImageWithDynamicBody) {
+export function addBallPaddleColliders(
+  scene: Phaser.Scene,
+  ball: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
+  player: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
+  opponent: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
+  callbacks?: { onTouch?: () => void }
+) {
+  const maxBounceDeg = 75;
+  const maxBounceRad = Phaser.Math.DegToRad(maxBounceDeg);
 
-  const maxRotation = Phaser.Math.DegToRad(15); // макс. наклон ракетки
+  const handleHit = (
+    paddle: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
+    isPlayer: boolean
+  ) => {
+    // вычисляем точку попадания по X относительно центра ракетки
+    const relativeIntersectX = ball.x - paddle.x;
+    const halfWidth = paddle.displayWidth / 2;
+    const normalized = Phaser.Math.Clamp(relativeIntersectX / halfWidth, -1, 1);
 
-  scene.physics.add.collider(ball, player, (ball, paddle) => {
-    const relativeIntersectX = (ball.x - paddle.x) / paddle.displayWidth;
-    const maxBounceAngle = Phaser.Math.DegToRad(60);
-    const bounceAngle = relativeIntersectX * maxBounceAngle;
+    // мапим на угол отскока (в радианах)
+    const bounceAngle = normalized * maxBounceRad;
 
-    ball.body.velocity.x = BALL_SPEED * Math.sin(bounceAngle);
-    ball.body.velocity.y = -BALL_SPEED * Math.cos(bounceAngle);
+    // сохраняем/определяем скорость (не даём нулевой)
+    const currentSpeed =
+      BALL_SPEED ||
+      Math.sqrt(
+        (ball.body.velocity.x || 0) * (ball.body.velocity.x || 0) +
+          (ball.body.velocity.y || 0) * (ball.body.velocity.y || 0)
+      ) ||
+      200;
 
-    // наклон ракетки
-    paddle.setRotation(relativeIntersectX * maxRotation);
+    // вычисляем новые скорости по X/Y
+    const vx = currentSpeed * Math.sin(bounceAngle);
+    const vy = currentSpeed * Math.cos(bounceAngle) * (isPlayer ? -1 : 1);
 
-    // мерцание
+    // корректируем позицию мяча, чтобы он не "застревал" в ракетке
+    if (isPlayer) {
+      ball.y = paddle.y - paddle.displayHeight / 2 - ball.displayHeight / 2 - 1;
+    } else {
+      ball.y = paddle.y + paddle.displayHeight / 2 + ball.displayHeight / 2 + 1;
+    }
+
+    ball.setVelocity(vx, vy);
+
+    // отклонение ракетки: небольшой наклон по углу и возврат
+    scene.tweens.killTweensOf(paddle);
     scene.tweens.add({
       targets: paddle,
-      alpha: 0.5,
+      angle: normalized * 15, // наклон в зависимости от точки попадания
       duration: 100,
       yoyo: true,
+      ease: "Sine.easeOut",
     });
 
-    // вернуть наклон обратно
-    scene.tweens.add({
-      targets: paddle,
-      rotation: 0,
-      duration: 150,
-      ease: "Power2",
-    });
-  });
+    // небольшая случайная поправка по X чтобы избежать зацикливания (опционально)
+    const spinVariation = Phaser.Math.FloatBetween(-0.03, 0.03) * currentSpeed;
+    ball.setVelocity(ball.body.velocity.x + spinVariation, ball.body.velocity.y);
 
-  scene.physics.add.collider(ball, opponent, (ball, paddle) => {
-    const relativeIntersectX = (ball.x - paddle.x) / paddle.displayWidth;
-    const maxBounceAngle = Phaser.Math.DegToRad(60);
-    const bounceAngle = relativeIntersectX * maxBounceAngle;
+    // callback для счётчика касаний
+    callbacks?.onTouch?.();
+  };
 
-    ball.body.velocity.x = BALL_SPEED * Math.sin(bounceAngle);
-    ball.body.velocity.y = BALL_SPEED * Math.cos(bounceAngle);
-
-    // наклон и мерцание для оппонента
-    paddle.setRotation(relativeIntersectX * maxRotation);
-    scene.tweens.add({
-      targets: paddle,
-      alpha: 0.5,
-      duration: 100,
-      yoyo: true,
-    });
-    scene.tweens.add({
-      targets: paddle,
-      rotation: 0,
-      duration: 150,
-      ease: "Power2",
-    });
-  });
+  scene.physics.add.collider(ball, player, () => handleHit(player, true));
+  scene.physics.add.collider(ball, opponent, () => handleHit(opponent, false));
 }
