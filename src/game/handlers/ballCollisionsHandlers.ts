@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { BALL_SPEED } from "./constants";
+import { BALL_SPEED, MAX_BOUNCE_DEG } from "../gameConstants";
 
 export function addBallPaddleColliders(
   scene: Phaser.Scene,
@@ -8,7 +8,7 @@ export function addBallPaddleColliders(
   opponent: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
   callbacks?: { onTouch?: () => void }
 ) {
-  const maxBounceDeg = 75;
+  const maxBounceDeg = MAX_BOUNCE_DEG;
   const maxBounceRad = Phaser.Math.DegToRad(maxBounceDeg);
 
   const handleHit = (

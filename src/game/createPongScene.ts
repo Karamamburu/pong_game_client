@@ -1,9 +1,9 @@
 import Phaser from "phaser";
-import { createPlayer, createOpponent, createBall } from "./createObjects";
-import { movePlayer, moveBot } from "./paddles";
-import { addBallPaddleColliders } from "./ballCollisions";
-import { checkGameOver } from "./gameOver";
-import { BALL_SPEED } from "./constants";
+import { createPlayer, createOpponent, createBall } from "./handlers/createObjectsHandlers";
+import { movePlayer, moveBot } from "./handlers/paddlesHandlers";
+import { addBallPaddleColliders } from "./handlers/ballCollisionsHandlers";
+import { checkGameOver } from "./handlers/gameOverHandlers";
+import { BALL_SPEED, START_PLAYER_X, MIN_BALL_DIRECTION_ANGLE, MAX_BALL_DIRECTION_ANGLE } from "./gameConstants";
 
 interface SceneConfig {
   onGameOver?: (message: string) => void;
@@ -16,7 +16,6 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
     opponent!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
     ball!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-    messageText!: Phaser.GameObjects.Text;
     isGameOver = false;
 
     constructor() {
@@ -26,13 +25,13 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
     create() {
       this.isGameOver = false;
       // Создаём объекты
-      this.player = createPlayer(this, 400);
-      this.opponent = createOpponent(this, 400);
+      this.player = createPlayer(this, START_PLAYER_X);
+      this.opponent = createOpponent(this, START_PLAYER_X);
       this.ball = createBall(this);
 
       // --- Рандомное стартовое направление мяча ---
-      const minAngle = -45;
-      const maxAngle = 45;
+      const minAngle = MIN_BALL_DIRECTION_ANGLE;
+      const maxAngle = MAX_BALL_DIRECTION_ANGLE;
       const angleDeg = Phaser.Math.Between(minAngle, maxAngle);
       const angleRad = Phaser.Math.DegToRad(angleDeg);
       const dirY = Phaser.Math.Between(0, 1) === 0 ? -1 : 1;
@@ -46,15 +45,7 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
       this.physics.world.setBoundsCollision(true, true, false, false);
       this.ball.setCollideWorldBounds(true);
 
-      // Сообщение посередине (для отображения "Вы выиграли/проиграли")
-      this.messageText = this.add
-        .text(this.scale.width / 2, this.scale.height / 2, "", {
-          fontSize: "32px",
-          color: "#fff",
-        })
-        .setOrigin(0.5);
-
-      // --- Коллизии мяча с ракетками (внешняя функция) ---
+      // --- Коллизии мяча с ракетками ---
       addBallPaddleColliders(this, this.ball, this.player, this.opponent, {
         onTouch: () => {
           config.onTouch?.();
@@ -74,8 +65,9 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
 
       // Проверка конца игры — если есть результат, показываем текст и вызываем callback
       checkGameOver(this, this.ball, (message: string) => {
-        this.messageText.setText(message);
         this.ball.setVelocity(0, 0);
+        this.player.setVelocity(0);
+        this.opponent.setVelocity(0);
         this.isGameOver = true;
         config.onGameOver?.(message);
       });

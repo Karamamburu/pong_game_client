@@ -4,7 +4,7 @@ import {
   OPPONENT_WIDTH, OPPONENT_HEIGHT,
   BALL_SIZE, BALL_SPEED,
   START_PLAYER_Y, START_OPPONENT_Y, START_BALL_X, START_BALL_Y
-} from "./constants";
+} from "../gameConstants";
 
 export function createPlayer(scene: Phaser.Scene, x: number) {
   return scene.physics.add.image(x, START_PLAYER_Y, "")

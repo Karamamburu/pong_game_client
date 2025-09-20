@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
 import createPongScene from "../game/createPongScene";
 import Modal from "./GameOverModal";
+import { GAME_HEIGHT, GAME_WIDTH } from "../game/gameConstants";
+import "./styles/PongGame.css";
 
 const PongGame: React.FC = () => {
   const gameRef = useRef<Phaser.Game | null>(null);
@@ -15,8 +17,8 @@ const PongGame: React.FC = () => {
 
     gameRef.current = new Phaser.Game({
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
+      width: GAME_WIDTH,
+      height: GAME_HEIGHT,
       physics: {
         default: "arcade",
         arcade: { debug: false },

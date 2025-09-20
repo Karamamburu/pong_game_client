@@ -10,3 +10,9 @@
   margin: 0 auto;
   background-color: #222; /* тёмный фон */
 }
+
+.button-regular {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin-top: 10px;
+}

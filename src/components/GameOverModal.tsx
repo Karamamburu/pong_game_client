@@ -1,4 +1,6 @@
 import React from "react";
+import "./styles/GameOverModal.css";
+import "../App.css";
 
 interface ModalProps {
   isOpen: boolean;
@@ -11,32 +13,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, message, touches, onRestart }) =>
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(0,0,0,0.6)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          background: "#fff",
-          color: "#000",
-          padding: "20px",
-          borderRadius: "10px",
-          textAlign: "center",
-          minWidth: "300px",
-        }}
-      >
+    <div className="modal-overlay">
+      <div className="modal-content">
         <h2>{message}</h2>
         <p>Касаний ракеток: {touches}</p>
         <button
           onClick={onRestart}
-          style={{ padding: "10px 20px", fontSize: "16px", marginTop: "10px" }}
+          className="regular-button"
         >
           Играть снова
         </button>

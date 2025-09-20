@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { RESTART_DELAY } from "./constants";
+import { RESTART_DELAY } from "../gameConstants";
 
 export function checkGameOver(
   scene: Phaser.Scene,

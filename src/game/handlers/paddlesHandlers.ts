@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { PLAYER_SPEED, BOT_SPEED } from "./constants";
+import { PLAYER_SPEED, BOT_SPEED } from "../gameConstants";
 
 export function movePlayer(player: Phaser.Types.Physics.Arcade.ImageWithDynamicBody, cursors: Phaser.Types.Input.Keyboard.CursorKeys, keys: any) {
   if (cursors.left?.isDown || keys.A.isDown) {
