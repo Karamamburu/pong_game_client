@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: sans-serif;
+}
+
+#game-container {
+  width: 800px;
+  height: 600px;
+  margin: 0 auto;
+  background-color: #222; /* тёмный фон */
+}
