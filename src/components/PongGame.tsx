@@ -11,6 +11,8 @@ const PongGame: React.FC = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
   const [touches, setTouches] = useState(0);
+  const [playerScore, setPlayerScore] = useState(0);
+  const [opponentScore, setOpponentScore] = useState(0);
 
   useEffect(() => {
     if (gameRef.current) return;
@@ -31,6 +33,10 @@ const PongGame: React.FC = () => {
         onTouch: () => {
           setTouches((prev) => prev + 1);
         },
+        onScoreUpdate: (player: number, opponent: number) => {
+          setPlayerScore(player);
+          setOpponentScore(opponent);
+        }
       }),
       parent: "game-container",
     });
@@ -43,6 +49,8 @@ const PongGame: React.FC = () => {
 
   const restartGame = () => {
     setTouches(0);
+    setPlayerScore(0);
+    setOpponentScore(0);
     setIsGameOver(false);
     gameRef.current?.scene.keys["PongScene"].scene.restart();
   };
@@ -50,8 +58,19 @@ const PongGame: React.FC = () => {
   return (
     <div style={{ position: "relative" }}>
       <div id="game-container" className="w-full h-full" />
-      <div style={{ position: "absolute", top: 10, left: 10, color: "#fff" }}>
-        Касаний: {touches}
+      <div style={{ 
+        position: "absolute", 
+        top: 10, 
+        left: 10, 
+        color: "#fff",
+        fontSize: "18px",
+        fontFamily: "Arial",
+        backgroundColor: "rgba(0,0,0,0.5)",
+        padding: "5px 10px",
+        borderRadius: "5px"
+      }}>
+        <div>Счёт: {playerScore} - {opponentScore}</div>
+        <div>Касаний: {touches}</div>
       </div>
       <Modal
         isOpen={isGameOver}

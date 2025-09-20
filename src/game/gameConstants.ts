@@ -21,3 +21,4 @@ export const START_BALL_X = GAME_WIDTH / 2;
 export const START_BALL_Y = GAME_HEIGHT / 2;
 
 export const RESTART_DELAY = 1000;
+export const WINNING_SCORE = 11;
