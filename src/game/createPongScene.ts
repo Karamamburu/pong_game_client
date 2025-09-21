@@ -5,6 +5,7 @@ import { CollisionHandler } from "./handlers/CollisionHandler";
 import { ScoreHandler } from "./handlers/ScoreHandler";
 import { RoundHandler } from "./handlers/RoundsHandler";
 import { GameStateHandler } from "./handlers/GameStateHandler";
+import { MessageHandler } from "./handlers/MessageHandler";
 import { START_PLAYER_X } from "./gameConstants";
 
 interface SceneConfig {
@@ -24,6 +25,7 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
     scoreHandler!: ScoreHandler;
     roundHandler!: RoundHandler;
     gameStateHandler!: GameStateHandler;
+    messageHandler!: MessageHandler;
 
     constructor() {
       super("PongScene");
@@ -32,6 +34,7 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
     create() {
       // Инициализируем хендлеры
       this.gameStateHandler = new GameStateHandler();
+      this.messageHandler = new MessageHandler(this);
       this.gameStateHandler.reset();
 
       // Создаём объекты

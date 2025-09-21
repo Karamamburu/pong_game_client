@@ -69,8 +69,7 @@ export class ScoreHandler {
     // Обновляем счет в React компоненте
     this.config.onScoreUpdate?.(this.playerScore, this.opponentScore);
 
-    // Показываем счет на игровом поле
-    this.showScoreTemporarily();
+    (this.scene as any).messageHandler.showScore(this.playerScore, this.opponentScore);
 
     // Проверяем конец игры
     const gameOverCheck = this.gameStateHandler.checkGameOver(
@@ -93,32 +92,6 @@ export class ScoreHandler {
     this.player.setVelocity(0);
     this.opponent.setVelocity(0);
     this.config.onGameOver?.(message);
-  }
-
-  showScoreTemporarily() {
-    this.scoreTextTop.setText(this.opponentScore.toString());
-    this.scoreTextBottom.setText(this.playerScore.toString());
-
-    this.scoreTextTop.setScale(0.5).setAlpha(0);
-    this.scoreTextBottom.setScale(0.5).setAlpha(0);
-
-    this.scene.tweens.add({
-      targets: [this.scoreTextTop, this.scoreTextBottom],
-      scale: 1,
-      alpha: 1,
-      duration: 200,
-      ease: "Back.easeOut",
-    });
-
-    this.scene.time.delayedCall(800, () => {
-      this.scene.tweens.add({
-        targets: [this.scoreTextTop, this.scoreTextBottom],
-        alpha: 0,
-        scale: 0.5,
-        duration: 200,
-        ease: "Power2",
-      });
-    });
   }
 
   reset() {
