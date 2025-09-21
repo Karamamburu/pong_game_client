@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { RoundHandler } from "./roundHandler";
+import { RoundHandler } from "./RoundsHandler";
 import { GameStateHandler } from "./GameStateHandler";
 import { SceneInterface } from "../configs/SceneInterface";
 

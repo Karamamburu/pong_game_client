@@ -1,9 +1,9 @@
 import Phaser from "phaser";
-import { createPlayer, createOpponent, createBall } from "./handlers/createObjectsHandlers";
-import { movePlayer, moveBot } from "./handlers/paddlesHandlers";
-import { addBallPaddleColliders } from "./handlers/ballCollisionsHandlers";
-import { ScoreHandler } from "./handlers/scoreHandler";
-import { RoundHandler } from "./handlers/roundHandler";
+import { ObjectFactory } from "./handlers/ObjectFactory";
+import { PaddleController } from "./handlers/PaddlesHandler";
+import { CollisionHandler } from "./handlers/CollisionHandler";
+import { ScoreHandler } from "./handlers/ScoreHandler";
+import { RoundHandler } from "./handlers/RoundsHandler";
 import { GameStateHandler } from "./handlers/GameStateHandler";
 import { START_PLAYER_X } from "./gameConstants";
 
@@ -35,9 +35,9 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
       this.gameStateHandler.reset();
 
       // Создаём объекты
-      this.player = createPlayer(this, START_PLAYER_X);
-      this.opponent = createOpponent(this, START_PLAYER_X);
-      this.ball = createBall(this);
+      this.player = ObjectFactory.createPlayer(this, START_PLAYER_X);
+      this.opponent = ObjectFactory.createOpponent(this, START_PLAYER_X);
+      this.ball = ObjectFactory.createBall(this);
 
       // Инициализируем RoundHandler
       this.roundHandler = new RoundHandler(this, this.ball);
@@ -62,7 +62,7 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
       this.ball.setCollideWorldBounds(true);
 
       // Коллизии мяча с ракетками
-      addBallPaddleColliders(this, this.ball, this.player, this.opponent, {
+      CollisionHandler.addBallPaddleColliders(this, this.ball, this.player, this.opponent, {
         onTouch: () => config.onTouch?.(),
       });
 
@@ -76,11 +76,11 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
       if (this.gameStateHandler.isGameOver) return;
 
       // Двигаем ракетки всегда
-      movePlayer(this.player, this.cursors, this.input.keyboard!.addKeys("A,D"));
+      PaddleController.movePlayer(this.player, this.cursors, this.input.keyboard!.addKeys("A,D"));
 
       // Бота двигаем только когда мяч активен
       if (!this.roundHandler.isWaitingForRestart) {
-        moveBot(this.opponent, this.ball);
+        PaddleController.moveBot(this.opponent, this.ball);
       }
 
       // Проверяем очки только когда мяч активен
