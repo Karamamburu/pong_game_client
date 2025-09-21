@@ -1,4 +1,4 @@
-import { WINNING_SCORE } from "../gameConstants";
+import { SPECIAL_SCORES, WINNING_SCORE, TIE_BREAK_SCORE_DIFFERENCE } from "../gameConstants";
 
 export class GameStateHandler {
   public isGameOver: boolean = false;
@@ -37,15 +37,7 @@ export class GameStateHandler {
       }
     };
     
-    // Специальные случаи завершения
-    const specialScores = [
-      { player1: 7, player2: 0 },
-      { player1: 0, player2: 7 },
-      { player1: 9, player2: 1 },
-      { player1: 1, player2: 9 }
-    ];
-    
-    for (const score of specialScores) {
+    for (const score of SPECIAL_SCORES) {
       if (playerScore === score.player1 && opponentScore === score.player2) {
         this.isGameOver = true;
         const message = getResultMessage(playerScore > opponentScore);
@@ -55,7 +47,7 @@ export class GameStateHandler {
     
     // Стандартное завершение
     const maxScore = Math.max(playerScore, opponentScore);
-    if (maxScore >= 11 && scoreDifference >= 2) {
+    if (maxScore >= WINNING_SCORE && scoreDifference >= TIE_BREAK_SCORE_DIFFERENCE) {
       this.isGameOver = true;
       const message = getResultMessage(playerScore > opponentScore);
       return { isOver: true, message };

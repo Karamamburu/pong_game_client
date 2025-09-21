@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { BALL_SPEED, MIN_BALL_DIRECTION_ANGLE, MAX_BALL_DIRECTION_ANGLE, RESTART_DELAY } from "../gameConstants";
+import { INITIAL_BALL_SPEED, MIN_BALL_DIRECTION_ANGLE, MAX_BALL_DIRECTION_ANGLE, RESTART_DELAY } from "../gameConstants";
 
 export class RoundHandler {
   private scene: Phaser.Scene;
@@ -26,8 +26,8 @@ export class RoundHandler {
     const dirY = Phaser.Math.Between(0, 1) === 0 ? -1 : 1;
 
     this.ball.setVelocity(
-      BALL_SPEED * Math.sin(angleRad),
-      BALL_SPEED * Math.cos(angleRad) * dirY
+      INITIAL_BALL_SPEED * Math.sin(angleRad),
+      INITIAL_BALL_SPEED * Math.cos(angleRad) * dirY
     );
   }
 
