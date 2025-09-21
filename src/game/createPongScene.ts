@@ -2,8 +2,10 @@ import Phaser from "phaser";
 import { createPlayer, createOpponent, createBall } from "./handlers/createObjectsHandlers";
 import { movePlayer, moveBot } from "./handlers/paddlesHandlers";
 import { addBallPaddleColliders } from "./handlers/ballCollisionsHandlers";
-import { checkPointScored } from "./handlers/gameOverHandlers";
-import { BALL_SPEED, START_PLAYER_X, MIN_BALL_DIRECTION_ANGLE, MAX_BALL_DIRECTION_ANGLE, WINNING_SCORE } from "./gameConstants";
+import { ScoreHandler } from "./handlers/scoreHandler";
+import { RoundHandler } from "./handlers/roundHandler";
+import { GameStateHandler } from "./handlers/GameStateHandler";
+import { START_PLAYER_X } from "./gameConstants";
 
 interface SceneConfig {
   onGameOver?: (message: string) => void;
@@ -17,38 +19,42 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
     opponent!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
     ball!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-    isGameOver = false;
-    playerScore = 0;
-    opponentScore = 0;
-    isWaitingForRestart = false;
+    
+    // Хендлеры
+    scoreHandler!: ScoreHandler;
+    roundHandler!: RoundHandler;
+    gameStateHandler!: GameStateHandler;
 
     constructor() {
       super("PongScene");
     }
 
     create() {
-      this.isGameOver = false;
-      this.isWaitingForRestart = false;
-      this.playerScore = 0;
-      this.opponentScore = 0;
-      
+      // Инициализируем хендлеры
+      this.gameStateHandler = new GameStateHandler();
+      this.gameStateHandler.reset();
+
       // Создаём объекты
       this.player = createPlayer(this, START_PLAYER_X);
       this.opponent = createOpponent(this, START_PLAYER_X);
       this.ball = createBall(this);
 
-      this.startNewRound();
+      // Инициализируем остальные хендлеры
+      this.scoreHandler = new ScoreHandler(this);
+      this.roundHandler = new RoundHandler(this, this.ball);
 
+      // Начинаем первый раунд
+      this.roundHandler.startNewRound();
+
+      // Настройка физики
       this.player.setCollideWorldBounds(true);
       this.opponent.setCollideWorldBounds(true);
       this.physics.world.setBoundsCollision(true, true, false, false);
       this.ball.setCollideWorldBounds(true);
 
-      // --- Коллизии мяча с ракетками ---
+      // Коллизии мяча с ракетками
       addBallPaddleColliders(this, this.ball, this.player, this.opponent, {
-        onTouch: () => {
-          config.onTouch?.();
-        },
+        onTouch: () => config.onTouch?.(),
       });
 
       // Управление
@@ -56,67 +62,69 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
       this.input.keyboard!.addKeys("A,D");
     }
 
-    startNewRound() {
-      // Сбрасываем мяч в центр
-      this.ball.setPosition(this.scale.width / 2, this.scale.height / 2);
-      this.ball.setVisible(true);
-      
-      // Рандомное стартовое направление мяча
-      const minAngle = MIN_BALL_DIRECTION_ANGLE;
-      const maxAngle = MAX_BALL_DIRECTION_ANGLE;
-      const angleDeg = Phaser.Math.Between(minAngle, maxAngle);
-      const angleRad = Phaser.Math.DegToRad(angleDeg);
-      const dirY = Phaser.Math.Between(0, 1) === 0 ? -1 : 1;
-      
-      this.ball.setVelocity(
-        (BALL_SPEED || 200) * Math.sin(angleRad),
-        (BALL_SPEED || 200) * Math.cos(angleRad) * dirY
-      );
-    }
-
     update() {
-      if (this.isGameOver) return;
-      
-      // Двигаем ракетки всегда, даже во время ожидания следующего раунда
+      // Не обновляем игру если она завершена
+      if (this.gameStateHandler.isGameOver) return;
+
+      // Двигаем ракетки всегда
       movePlayer(this.player, this.cursors, this.input.keyboard!.addKeys("A,D"));
-      
-      // Бота двигаем только когда мяч активен (не во время ожидания)
-      if (!this.isWaitingForRestart) {
+
+      // Бота двигаем только когда мяч активен
+      if (!this.roundHandler.isWaitingForRestart) {
         moveBot(this.opponent, this.ball);
       }
 
       // Проверяем очки только когда мяч активен
-      if (!this.isWaitingForRestart) {
-        checkPointScored(this, this.ball, (scorer: 'player' | 'opponent') => {
-          this.isWaitingForRestart = true;
-          this.ball.setVelocity(0, 0);
-          this.ball.setVisible(false); // Скрываем мяч во время ожидания
-          
-          if (scorer === 'player') {
-            this.playerScore++;
-          } else {
-            this.opponentScore++;
-          }
-          
-          // Обновляем счет в React компоненте
-          config.onScoreUpdate?.(this.playerScore, this.opponentScore);
-          
-          // Проверяем, не достиг ли кто-то победного счета
-          if (this.playerScore >= WINNING_SCORE || this.opponentScore >= WINNING_SCORE) {
-            this.isGameOver = true;
-            const message = this.playerScore >= WINNING_SCORE 
-              ? "Вы выиграли матч!" 
-              : "Вы проиграли матч!";
-            config.onGameOver?.(message);
-          } else {
-            // Запускаем новый раунд через 1 секунду
-            this.time.delayedCall(1000, () => {
-              this.isWaitingForRestart = false;
-              this.startNewRound();
-            });
-          }
+      if (!this.roundHandler.isWaitingForRestart) {
+        const scorer = this.gameStateHandler.checkPointScored(this, this.ball);
+        if (scorer) {
+          this.handlePointScored(scorer);
+        }
+      }
+    }
+
+    private handlePointScored(scorer: "player" | "opponent") {
+      // Приостанавливаем текущий раунд
+      this.roundHandler.pauseRound();
+
+      // Обновляем счет
+      if (scorer === "player") {
+        this.scoreHandler.incrementPlayer();
+      } else {
+        this.scoreHandler.incrementOpponent();
+      }
+
+      // Обновляем счет в React компоненте
+      const scores = this.scoreHandler.getScores();
+      config.onScoreUpdate?.(scores.player, scores.opponent);
+
+      // Показываем счет на игровом поле
+      this.scoreHandler.showScoreTemporarily();
+
+      // Проверяем конец игры
+      const gameOverCheck = this.gameStateHandler.checkGameOver(
+        scores.player, 
+        scores.opponent
+      );
+
+      if (gameOverCheck.isOver) {
+        // Завершаем игру
+        this.handleGameOver(gameOverCheck.message);
+      } else {
+        // Запускаем следующий раунд через 1 секунду
+        this.roundHandler.scheduleNextRound(() => {
+          this.roundHandler.startNewRound();
         });
       }
+    }
+
+    private handleGameOver(message: string) {
+      this.gameStateHandler.handleGameOver(
+        this.player,
+        this.opponent,
+        message,
+        config.onGameOver
+      );
     }
   }
 
