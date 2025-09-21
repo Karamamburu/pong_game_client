@@ -3,8 +3,10 @@ import { ObjectFactory } from "./handlers/ObjectFactory";
 import { PaddleController } from "./handlers/PaddlesHandler";
 import { CollisionHandler } from "./handlers/CollisionHandler";
 import { ScoreHandler } from "./handlers/ScoreHandler";
-import { RoundHandler } from "./handlers/RoundsHandler";
+import { RoundHandler } from "./handlers/RoundHandler";
 import { GameStateHandler } from "./handlers/GameStateHandler";
+import { MessageHandler } from "./handlers/MessageHandler";
+import { DifficultyHandler } from "./handlers/DifficultyHandler";
 import { START_PLAYER_X } from "./gameConstants";
 
 interface SceneConfig {
@@ -24,25 +26,26 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
     scoreHandler!: ScoreHandler;
     roundHandler!: RoundHandler;
     gameStateHandler!: GameStateHandler;
+    messageHandler!: MessageHandler;
+    difficultyHandler!: DifficultyHandler;
 
     constructor() {
       super("PongScene");
     }
 
     create() {
-      // Инициализируем хендлеры
-      this.gameStateHandler = new GameStateHandler();
-      this.gameStateHandler.reset();
 
       // Создаём объекты
       this.player = ObjectFactory.createPlayer(this, START_PLAYER_X);
       this.opponent = ObjectFactory.createOpponent(this, START_PLAYER_X);
       this.ball = ObjectFactory.createBall(this);
 
-      // Инициализируем RoundHandler
+      // Инициализируем хендлеры
+      this.gameStateHandler = new GameStateHandler();
+      this.messageHandler = new MessageHandler(this);
       this.roundHandler = new RoundHandler(this, this.ball);
-
-      // Инициализируем ScoreHandler с зависимостями
+      this.difficultyHandler = new DifficultyHandler(this, this.roundHandler, this.messageHandler);
+      this.gameStateHandler.reset();
       this.scoreHandler = new ScoreHandler(
         this,
         this.roundHandler,
@@ -52,8 +55,9 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
         this.opponent
       );
 
-      // Начинаем первый раунд
-      this.roundHandler.startNewRound();
+      this.messageHandler.showCountdown(() => {
+        this.roundHandler.startNewRound();
+      });
 
       // Настройка физики
       this.player.setCollideWorldBounds(true);
@@ -62,9 +66,18 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
       this.ball.setCollideWorldBounds(true);
 
       // Коллизии мяча с ракетками
-      CollisionHandler.addBallPaddleColliders(this, this.ball, this.player, this.opponent, {
-        onTouch: () => config.onTouch?.(),
-      });
+      CollisionHandler.addBallPaddleColliders(
+        this,
+        this.ball,
+        this.player,
+        this.opponent,
+        {
+          onTouch: () => {
+            config.onTouch?.();
+            this.difficultyHandler.registerPaddleHit();
+          },
+        }
+      );
 
       // Управление
       this.cursors = this.input.keyboard!.createCursorKeys();
