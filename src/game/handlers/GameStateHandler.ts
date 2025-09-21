@@ -26,13 +26,41 @@ export class GameStateHandler {
     playerScore: number,
     opponentScore: number
   ): { isOver: boolean; message: string } {
-    if (playerScore >= WINNING_SCORE || opponentScore >= WINNING_SCORE) {
+    const scoreDifference = Math.abs(playerScore - opponentScore);
+    
+    // Функция для создания сообщения
+    const getResultMessage = (isWin: boolean) => {
+      if (isWin) {
+        return `Вы выиграли матч со счётом ${playerScore}:${opponentScore}!`;
+      } else {
+        return `Вы проиграли матч со счётом ${playerScore}:${opponentScore} :(`;
+      }
+    };
+    
+    // Специальные случаи завершения
+    const specialScores = [
+      { player1: 7, player2: 0 },
+      { player1: 0, player2: 7 },
+      { player1: 9, player2: 1 },
+      { player1: 1, player2: 9 }
+    ];
+    
+    for (const score of specialScores) {
+      if (playerScore === score.player1 && opponentScore === score.player2) {
+        this.isGameOver = true;
+        const message = getResultMessage(playerScore > opponentScore);
+        return { isOver: true, message };
+      }
+    }
+    
+    // Стандартное завершение
+    const maxScore = Math.max(playerScore, opponentScore);
+    if (maxScore >= 11 && scoreDifference >= 2) {
       this.isGameOver = true;
-      const message = playerScore >= WINNING_SCORE
-        ? "Вы выиграли матч!"
-        : "Вы проиграли матч!";
+      const message = getResultMessage(playerScore > opponentScore);
       return { isOver: true, message };
     }
+    
     return { isOver: false, message: "" };
   }
 
