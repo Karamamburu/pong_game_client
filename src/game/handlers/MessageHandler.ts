@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { COUNTDOWN_VALUES } from '../gameConstants'
 
 export class MessageHandler {
   private scene: Phaser.Scene;
@@ -13,10 +14,10 @@ export class MessageHandler {
     // Центрированное сообщение
     this.messageText = this.scene.add.text(
       this.scene.scale.width / 2,
-      this.scene.scale.height / 2,
+      this.scene.scale.height / 2 - 100,
       "",
       {
-        fontSize: "48px",
+        fontSize: "64px",
         color: "#fff",
         fontFamily: "Arial",
         stroke: "#000",
@@ -24,7 +25,8 @@ export class MessageHandler {
       }
     )
     .setOrigin(0.5)
-    .setAlpha(0);
+    .setAlpha(0)
+    .setDepth(1000);
 
     // Текст счёта сверху (соперник)
     this.scoreTextTop = scene.add
@@ -101,4 +103,47 @@ export class MessageHandler {
       });
     });
   }
+
+  public showCountdown(onComplete: () => void) {
+    const countdownValues = ["3", "2", "1", "Поехали!"];
+    let index = 0;
+
+    const showNext = () => {
+      if (index >= countdownValues.length) {
+        // обратный отсчёт закончился → запускаем колбэк
+        onComplete();
+        return;
+      }
+
+      this.messageText.setText(countdownValues[index]);
+      this.messageText.setAlpha(0).setScale(0.5);
+
+      this.scene.tweens.add({
+        targets: this.messageText,
+        alpha: 1,
+        scale: 1,
+        duration: 150,
+        ease: "Back.easeOut",
+        onComplete: () => {
+          this.scene.time.delayedCall(500, () => {
+            this.scene.tweens.add({
+              targets: this.messageText,
+              alpha: 0,
+              scale: 0.5,
+              duration: 150,
+              ease: "Power2",
+              onComplete: () => {
+                index++;
+                showNext();
+              },
+            });
+          });
+        },
+      });
+    };
+
+    showNext();
+  }
+
+
 }

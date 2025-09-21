@@ -35,5 +35,8 @@ export const SPECIAL_SCORES = [
       { player1: 1, player2: 9 }
     ];
 
+//MESSAGES
+export const COUNTDOWN_VALUES = ["3", "2", "1", "Поехали!"];
+
 //DIFFICULTY_MANAGEMENT
 export const BALL_SPEED_INCREASE_RATIO = 0.05;

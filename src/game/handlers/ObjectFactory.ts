@@ -37,6 +37,5 @@ export class ObjectFactory {
     return scene.physics.add.image(START_BALL_X, START_BALL_Y, "")
       .setDisplaySize(BALL_SIZE, BALL_SIZE)
       .setBounce(1, 1)
-      .setVelocity(INITIAL_BALL_SPEED, INITIAL_BALL_SPEED);
   }
 }

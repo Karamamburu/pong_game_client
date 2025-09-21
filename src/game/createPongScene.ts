@@ -55,8 +55,9 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
         this.opponent
       );
 
-      // Начинаем первый раунд
-      this.roundHandler.startNewRound();
+      this.messageHandler.showCountdown(() => {
+        this.roundHandler.startNewRound();
+      });
 
       // Настройка физики
       this.player.setCollideWorldBounds(true);
