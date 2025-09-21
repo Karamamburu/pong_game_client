@@ -1,4 +1,7 @@
 import Phaser from "phaser";
+import { RoundHandler } from "./roundHandler";
+import { GameStateHandler } from "./GameStateHandler";
+import { SceneInterface } from "../configs/SceneInterface";
 
 export class ScoreHandler {
   private scene: Phaser.Scene;
@@ -7,8 +10,26 @@ export class ScoreHandler {
   public playerScore: number = 0;
   public opponentScore: number = 0;
 
-  constructor(scene: Phaser.Scene) {
+  private roundHandler: RoundHandler;
+  private gameStateHandler: GameStateHandler;
+  private config: SceneInterface;
+  private player: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
+  private opponent: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
+
+  constructor(
+    scene: Phaser.Scene,
+    roundHandler: RoundHandler,
+    gameStateHandler: GameStateHandler,
+    config: SceneInterface,
+    player: Phaser.Types.Physics.Arcade.ImageWithDynamicBody,
+    opponent: Phaser.Types.Physics.Arcade.ImageWithDynamicBody
+  ) {
     this.scene = scene;
+    this.roundHandler = roundHandler;
+    this.gameStateHandler = gameStateHandler;
+    this.config = config;
+    this.player = player;
+    this.opponent = opponent;
     
     // Создаем текстовые элементы для счета
     this.scoreTextTop = scene.add
@@ -34,16 +55,53 @@ export class ScoreHandler {
       .setAlpha(0);
   }
 
+  handlePointScored(scorer: "player" | "opponent") {
+    // Приостанавливаем текущий раунд
+    this.roundHandler.pauseRound();
+
+    // Обновляем счет
+    if (scorer === "player") {
+      this.incrementPlayer();
+    } else {
+      this.incrementOpponent();
+    }
+
+    // Обновляем счет в React компоненте
+    this.config.onScoreUpdate?.(this.playerScore, this.opponentScore);
+
+    // Показываем счет на игровом поле
+    this.showScoreTemporarily();
+
+    // Проверяем конец игры
+    const gameOverCheck = this.gameStateHandler.checkGameOver(
+      this.playerScore, 
+      this.opponentScore
+    );
+
+    if (gameOverCheck.isOver) {
+      // Завершаем игру
+      this.handleGameOver(gameOverCheck.message);
+    } else {
+      // Запускаем следующий раунд через 1 секунду
+      this.roundHandler.scheduleNextRound(() => {
+        this.roundHandler.startNewRound();
+      });
+    }
+  }
+
+  private handleGameOver(message: string) {
+    this.player.setVelocity(0);
+    this.opponent.setVelocity(0);
+    this.config.onGameOver?.(message);
+  }
+
   showScoreTemporarily() {
-    // Обновляем текст счета
     this.scoreTextTop.setText(this.opponentScore.toString());
     this.scoreTextBottom.setText(this.playerScore.toString());
 
-    // Сбрасываем позицию и масштаб для анимации
     this.scoreTextTop.setScale(0.5).setAlpha(0);
     this.scoreTextBottom.setScale(0.5).setAlpha(0);
 
-    // Анимация появления
     this.scene.tweens.add({
       targets: [this.scoreTextTop, this.scoreTextBottom],
       scale: 1,
@@ -52,7 +110,6 @@ export class ScoreHandler {
       ease: "Back.easeOut",
     });
 
-    // Через 0.8 секунды начинаем скрывать
     this.scene.time.delayedCall(800, () => {
       this.scene.tweens.add({
         targets: [this.scoreTextTop, this.scoreTextBottom],

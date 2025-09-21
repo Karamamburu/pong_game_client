@@ -39,9 +39,18 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
       this.opponent = createOpponent(this, START_PLAYER_X);
       this.ball = createBall(this);
 
-      // Инициализируем остальные хендлеры
-      this.scoreHandler = new ScoreHandler(this);
+      // Инициализируем RoundHandler
       this.roundHandler = new RoundHandler(this, this.ball);
+
+      // Инициализируем ScoreHandler с зависимостями
+      this.scoreHandler = new ScoreHandler(
+        this,
+        this.roundHandler,
+        this.gameStateHandler,
+        config,
+        this.player,
+        this.opponent
+      );
 
       // Начинаем первый раунд
       this.roundHandler.startNewRound();
@@ -78,53 +87,9 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
       if (!this.roundHandler.isWaitingForRestart) {
         const scorer = this.gameStateHandler.checkPointScored(this, this.ball);
         if (scorer) {
-          this.handlePointScored(scorer);
+          this.scoreHandler.handlePointScored(scorer);
         }
       }
-    }
-
-    private handlePointScored(scorer: "player" | "opponent") {
-      // Приостанавливаем текущий раунд
-      this.roundHandler.pauseRound();
-
-      // Обновляем счет
-      if (scorer === "player") {
-        this.scoreHandler.incrementPlayer();
-      } else {
-        this.scoreHandler.incrementOpponent();
-      }
-
-      // Обновляем счет в React компоненте
-      const scores = this.scoreHandler.getScores();
-      config.onScoreUpdate?.(scores.player, scores.opponent);
-
-      // Показываем счет на игровом поле
-      this.scoreHandler.showScoreTemporarily();
-
-      // Проверяем конец игры
-      const gameOverCheck = this.gameStateHandler.checkGameOver(
-        scores.player, 
-        scores.opponent
-      );
-
-      if (gameOverCheck.isOver) {
-        // Завершаем игру
-        this.handleGameOver(gameOverCheck.message);
-      } else {
-        // Запускаем следующий раунд через 1 секунду
-        this.roundHandler.scheduleNextRound(() => {
-          this.roundHandler.startNewRound();
-        });
-      }
-    }
-
-    private handleGameOver(message: string) {
-      this.gameStateHandler.handleGameOver(
-        this.player,
-        this.opponent,
-        message,
-        config.onGameOver
-      );
     }
   }
 
