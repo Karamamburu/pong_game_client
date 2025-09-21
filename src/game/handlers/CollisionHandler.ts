@@ -29,13 +29,9 @@ export class CollisionHandler {
       const bounceAngle = normalized * maxBounceRad;
 
       // сохраняем/определяем скорость (не даём нулевой)
-      const currentSpeed =
-        INITIAL_BALL_SPEED ||
-        Math.sqrt(
-          (ball.body.velocity.x || 0) * (ball.body.velocity.x || 0) +
-            (ball.body.velocity.y || 0) * (ball.body.velocity.y || 0)
-        ) ||
-        200;
+      const currentSpeed = Math.sqrt(
+        (ball.body.velocity.x || 0) ** 2 + (ball.body.velocity.y || 0) ** 2
+      );
 
       // вычисляем новые скорости по X/Y
       const vx = currentSpeed * Math.sin(bounceAngle);

@@ -54,18 +54,17 @@ export class RoundHandler {
   /** Запускает новый раунд: центрирует мяч, делает видимым и задаёт скорость */
   public startNewRound() {
     this.isWaitingForRestart = false;
-
-    // Центрируем и показываем мяч
     this.resetBallToCenter(true);
 
-    // Вычисляем и применяем скорость
     const { vx, vy } = this.computeLaunchVelocity();
 
-    // Через body.setVelocity если есть body, иначе через setVelocity
-    if ((this.ball.body as Phaser.Physics.Arcade.Body | undefined)) {
-      (this.ball.body as Phaser.Physics.Arcade.Body).setVelocity(vx, vy);
-    } else {
-      this.ball.setVelocity(vx, vy);
+    const body = this.ball.body as Phaser.Physics.Arcade.Body;
+    body.velocity.x = vx;
+    body.velocity.y = vy;
+
+    // После старта раунда сразу применяем текущий множитель из DifficultyHandler
+    if ((this.scene as any).difficultyHandler) {
+      (this.scene as any).difficultyHandler.applySpeedToBall();
     }
   }
 
@@ -89,5 +88,9 @@ export class RoundHandler {
   /** Планирование следующего раунда с задержкой */
   public scheduleNextRound(callback: () => void) {
     this.scene.time.delayedCall(RESTART_DELAY, callback);
+  }
+
+  public getBall() {
+    return this.ball;
   }
 }
