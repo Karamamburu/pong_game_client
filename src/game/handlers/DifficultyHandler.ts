@@ -28,7 +28,6 @@ export class DifficultyHandler {
       this.speedMultiplier *= 1.05;
       this.applySpeedToBall();
       this.messageHandler.showMessage("🚀", 600);
-
     }
   }
 
@@ -43,8 +42,6 @@ export class DifficultyHandler {
 
     body.velocity.x = newSpeed * Math.cos(angle);
     body.velocity.y = newSpeed * Math.sin(angle);
-
-    console.log(`Мяч ускорен! Новая скорость: ${newSpeed.toFixed(2)}`);
   }
 
   public getSpeedMultiplier(): number {
