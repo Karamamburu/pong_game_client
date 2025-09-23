@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./styles/StartPage.css";
 
+import Rules from "./Rules";
+import MyRecentGames from "./MyRecentGames";
+import AboutMe from "./AboutMe";
+
 interface Player {
   position: number;
   name: string;
@@ -119,24 +123,14 @@ const StartPage: React.FC = () => {
         </div>
       )}
 
-      {activeTab === "rules" && (
-        <div className="tab-content rules">
-          <h2>Правила игры</h2>
-          <ul>
-            <li>Игрок управляет ракеткой слева, бот — справа.</li>
-            <li>Мяч отскакивает от стен и ракеток.</li>
-            <li>Очко засчитывается, если соперник пропустил мяч.</li>
-            <li>Игра идёт до 10 очков.</li>
-          </ul>
-        </div>
-      )}
+      {activeTab === "rules" && <Rules />}
 
       {activeTab === "rating" && (
         <div className="tab-content rating">
           <div className="rating-header">
             <h2>Рейтинговая таблица</h2>
             <span>
-              <input type="text" placeholder="поиск"/>
+              <input type="text" placeholder="поиск" />
               <button className="regular-button small">Поиск</button>
             </span>
           </div>
@@ -187,30 +181,8 @@ const StartPage: React.FC = () => {
 
       {activeTab === "profile" && (
         <div className="tab-content profile">
-          <div className="profile-header">
-            <img
-              src="https://via.placeholder.com/100"
-              alt="avatar"
-              className="avatar"
-            />
-            <div>
-              <h3>Иван Иванов</h3>
-              <p>Frontend Developer</p>
-              <p>Компания: FastFood Corp</p>
-              <p>Рейтинг: 1000</p>
-            </div>
-          </div>
-          <div className="profile-games">
-            <h4>Последние игры</h4>
-            <ul>
-              <li>Победа против Бота (Normal)</li>
-              <li>Поражение против Бота (Hard)</li>
-              <li>Победа против Бота (Normal)</li>
-              <li>Поражение против Бота (Hell)</li>
-              <li>Победа против Бота (Hard)</li>
-            </ul>
-            <button className="regular-button small">Показать ещё</button>
-          </div>
+          <AboutMe />
+          <MyRecentGames />
         </div>
       )}
     </div>
