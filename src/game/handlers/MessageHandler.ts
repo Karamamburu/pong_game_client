@@ -144,6 +144,4 @@ export class MessageHandler {
 
     showNext();
   }
-
-
 }

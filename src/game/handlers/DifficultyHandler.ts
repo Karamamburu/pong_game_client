@@ -1,7 +1,12 @@
 import Phaser from "phaser";
 import { RoundHandler } from "./RoundHandler";
 import { MessageHandler } from "./MessageHandler";
-import { INITIAL_BALL_SPEED } from "../gameConstants";
+import {
+  INITIAL_BALL_SPEED,
+  BALL_SPEED_INCREASE_RATIO,
+  DIFFICULTY_INCREASE_INTERVAL,
+  DIFFICULTY_INCREASE_MESSAGE_DURATION,
+} from "../gameConstants";
 
 export class DifficultyHandler {
   private scene: Phaser.Scene;
@@ -24,10 +29,13 @@ export class DifficultyHandler {
   public registerPaddleHit() {
     this.paddleHitCount++;
 
-    if (this.paddleHitCount % 10 === 0) {
-      this.speedMultiplier *= 1.05;
+    if (this.paddleHitCount % DIFFICULTY_INCREASE_INTERVAL === 0) {
+      this.speedMultiplier *= BALL_SPEED_INCREASE_RATIO;
       this.applySpeedToBall();
-      this.messageHandler.showMessage("🚀", 600);
+      this.messageHandler.showMessage(
+        "🚀",
+        DIFFICULTY_INCREASE_MESSAGE_DURATION
+      );
     }
   }
 
