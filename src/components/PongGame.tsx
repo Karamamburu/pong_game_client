@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Phaser from "phaser";
 import createPongScene from "../game/createPongScene";
 import Modal from "./GameOverModal";
@@ -7,6 +8,8 @@ import "./styles/PongGame.css";
 
 const PongGame: React.FC = () => {
   const gameRef = useRef<Phaser.Game | null>(null);
+  const location = useLocation();
+  const difficulty = (location.state as any)?.difficulty || "Normal";
 
   const [isGameOver, setIsGameOver] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
@@ -71,6 +74,7 @@ const PongGame: React.FC = () => {
       }}>
         <div>Счёт: {playerScore} - {opponentScore}</div>
         <div>Касаний: {touches}</div>
+        <div>Сложность: {difficulty}</div>
       </div>
       <Modal
         isOpen={isGameOver}
