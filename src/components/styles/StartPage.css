@@ -102,6 +102,7 @@
 .avatar {
   border-radius: 50%;
   border: 2px solid #ddd;
+  width: 150px;
 }
 
 .profile-games ul {

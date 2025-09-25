@@ -4,7 +4,7 @@ const AboutMe: React.FC = () => {
   return (
     <div className="profile-header">
       <img
-        src="https://via.placeholder.com/100"
+        src="src/assets/img/troll_face.jpg"
         alt="avatar"
         className="avatar"
       />

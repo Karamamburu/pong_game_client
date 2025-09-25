@@ -116,9 +116,8 @@ const StartPage: React.FC = () => {
           </div>
           <Rules />
         </div>
-        
       )}
-      
+
       {activeTab === "rating" && (
         <div className="tab-content rating">
           <div className="rating-header">
