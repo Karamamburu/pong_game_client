@@ -14,7 +14,7 @@ interface Player {
   rating: number;
 }
 
-const generateDummyPlayers = (count: number): Player[] => {
+const generateMockPlayers = (count: number): Player[] => {
   return Array.from({ length: count }, (_, i) => ({
     position: i + 1,
     name: `Игрок ${i + 1}`,
@@ -29,7 +29,7 @@ const StartPage: React.FC = () => {
     "play" | "rules" | "rating" | "profile"
   >("play");
   const [difficulty, setDifficulty] = useState<string>("Normal");
-  const [players, setPlayers] = useState<Player[]>(generateDummyPlayers(10));
+  const [players, setPlayers] = useState<Player[]>(generateMockPlayers(10));
   const [page, setPage] = useState(1);
 
   const currentUser: Player = {
@@ -44,7 +44,7 @@ const StartPage: React.FC = () => {
     const newPage = page + 1;
     setPlayers((prev) => [
       ...prev,
-      ...generateDummyPlayers(100).map((p) => ({
+      ...generateMockPlayers(10).map((p) => ({
         ...p,
         position: p.position + prev.length,
       })),
@@ -60,12 +60,6 @@ const StartPage: React.FC = () => {
           onClick={() => setActiveTab("play")}
         >
           Играть
-        </button>
-        <button
-          className={activeTab === "rules" ? "tab active" : "tab"}
-          onClick={() => setActiveTab("rules")}
-        >
-          Правила
         </button>
         <button
           className={activeTab === "rating" ? "tab active" : "tab"}
@@ -120,11 +114,11 @@ const StartPage: React.FC = () => {
               </button>
             </div>
           </div>
+          <Rules />
         </div>
+        
       )}
-
-      {activeTab === "rules" && <Rules />}
-
+      
       {activeTab === "rating" && (
         <div className="tab-content rating">
           <div className="rating-header">
