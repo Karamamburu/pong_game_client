@@ -22,7 +22,7 @@ export class RoundHandler {
   }
 
   /** Центрируем мяч и опционально делаем видимым/скрытым */
-  private resetBallToCenter(visible: boolean = true) {
+  public resetBallToCenter(visible: boolean = true) {
     const cx = Math.round(this.scene.scale.width / 2);
     const cy = Math.round(this.scene.scale.height / 2);
 
@@ -39,34 +39,48 @@ export class RoundHandler {
 
   /** Вычисляет стартовую скорость по заданным углам */
   private computeLaunchVelocity() {
-    const minAngle = MIN_BALL_DIRECTION_ANGLE;
-    const maxAngle = MAX_BALL_DIRECTION_ANGLE;
+    const dh = (this.scene as any).difficultyHandler;
+    const minAngle = dh ? dh.getSettings().MIN_BALL_DIRECTION_ANGLE : MIN_BALL_DIRECTION_ANGLE;
+    const maxAngle = dh ? dh.getSettings().MAX_BALL_DIRECTION_ANGLE : MAX_BALL_DIRECTION_ANGLE;
+
     const angleDeg = Phaser.Math.Between(minAngle, maxAngle);
     const angleRad = Phaser.Math.DegToRad(angleDeg);
     const dirY = Phaser.Math.Between(0, 1) === 0 ? -1 : 1;
 
-    const vx = INITIAL_BALL_SPEED * Math.sin(angleRad);
-    const vy = INITIAL_BALL_SPEED * Math.cos(angleRad) * dirY;
+    const dhBallSpeed = dh ? dh.getSettings().BALL_SPEED : INITIAL_BALL_SPEED;
+
+    const vx = dhBallSpeed * Math.sin(angleRad);
+    const vy = dhBallSpeed * Math.cos(angleRad) * dirY;
 
     return { vx, vy };
   }
 
-  /** Запускает новый раунд: центрирует мяч, делает видимым и задаёт скорость */
-  public startNewRound() {
-    this.isWaitingForRestart = false;
-    this.resetBallToCenter(true);
 
-    const { vx, vy } = this.computeLaunchVelocity();
+/** Запускает новый раунд: центрирует мяч, делает видимым и задаёт скорость */
+public startNewRound() {
+  this.isWaitingForRestart = false;
+  this.resetBallToCenter(true);
 
-    const body = this.ball.body as Phaser.Physics.Arcade.Body;
-    body.velocity.x = vx;
-    body.velocity.y = vy;
+  const dh = (this.scene as any).difficultyHandler;
+  const settings = dh ? dh.getSettings() : {
+    BALL_SPEED: INITIAL_BALL_SPEED,
+    MIN_BALL_DIRECTION_ANGLE,
+    MAX_BALL_DIRECTION_ANGLE,
+  };
 
-    // После старта раунда сразу применяем текущий множитель из DifficultyHandler
-    if ((this.scene as any).difficultyHandler) {
-      (this.scene as any).difficultyHandler.applySpeedToBall();
-    }
-  }
+  // Случайный угол в диапазоне сложности
+  const angleDeg = Phaser.Math.Between(settings.MIN_BALL_DIRECTION_ANGLE, settings.MAX_BALL_DIRECTION_ANGLE);
+  const angleRad = Phaser.Math.DegToRad(angleDeg);
+  const dirY = Phaser.Math.Between(0, 1) === 0 ? -1 : 1;
+
+  const body = this.ball.body as Phaser.Physics.Arcade.Body;
+  body.velocity.x = settings.BALL_SPEED * Math.sin(angleRad);
+  body.velocity.y = settings.BALL_SPEED * Math.cos(angleRad) * dirY;
+
+  // Применяем мультипликатор скорости при попадании (если есть)
+  dh?.applySpeedToBall();
+}
+
 
   /**
    * Пауза раунда — останавливаем мяч.

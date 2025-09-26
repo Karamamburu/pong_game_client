@@ -3,8 +3,7 @@ import { useLocation } from "react-router-dom";
 import Phaser from "phaser";
 import createPongScene from "../game/createPongScene";
 import Modal from "./GameOverModal";
-import { GAME_HEIGHT, GAME_WIDTH } from "../game/gameConstants";
-import "./styles/PongGame.css";
+import { GAME_HEIGHT, GAME_WIDTH, DIFFICULTY_MAP, DIFFICULTY_LEVELS } from "../game/gameConstants";
 
 const PongGame: React.FC = () => {
   const gameRef = useRef<Phaser.Game | null>(null);
@@ -39,7 +38,8 @@ const PongGame: React.FC = () => {
         onScoreUpdate: (player: number, opponent: number) => {
           setPlayerScore(player);
           setOpponentScore(opponent);
-        }
+        },
+        difficulty: DIFFICULTY_MAP[difficulty] as keyof typeof DIFFICULTY_LEVELS,
       }),
       parent: "game-container",
     });
@@ -50,13 +50,11 @@ const PongGame: React.FC = () => {
     };
   }, []);
 
-  const restartGame = () => {
-    setTouches(0);
-    setPlayerScore(0);
-    setOpponentScore(0);
-    setIsGameOver(false);
-    gameRef.current?.scene.keys["PongScene"].scene.restart();
-  };
+const restartGame = () => {
+  const scene = gameRef.current?.scene.keys["PongScene"] as any;
+  scene?.resetGame();
+  setIsGameOver(false); 
+};
 
   return (
     <div style={{ position: "relative" }}>

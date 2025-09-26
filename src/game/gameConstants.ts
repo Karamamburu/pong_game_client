@@ -64,4 +64,12 @@ export const DIFFICULTY_LEVELS = {
     MIN_BALL_DIRECTION_ANGLE: -25,
     MAX_BALL_DIRECTION_ANGLE: 25,
   },
+} as const;
+
+export type DifficultyKey = keyof typeof DIFFICULTY_LEVELS;
+
+export const DIFFICULTY_MAP: Record<string, DifficultyKey> = {
+  Normal: "NORMAL",
+  Hard: "NIGHTMARE",
+  Hell: "HELL",
 };
