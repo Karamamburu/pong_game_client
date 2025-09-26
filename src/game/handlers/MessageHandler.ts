@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { COUNTDOWN_VALUES } from '../gameConstants'
+import { COUNTDOWN_VALUES } from "../gameConstants";
 
 export class MessageHandler {
   private scene: Phaser.Scene;
@@ -12,21 +12,17 @@ export class MessageHandler {
     this.scene = scene;
 
     // Центрированное сообщение
-    this.messageText = this.scene.add.text(
-      this.scene.scale.width / 2,
-      this.scene.scale.height / 2 - 100,
-      "",
-      {
+    this.messageText = this.scene.add
+      .text(this.scene.scale.width / 2, this.scene.scale.height / 2 - 100, "", {
         fontSize: "64px",
         color: "#fff",
         fontFamily: "Arial",
         stroke: "#000",
         strokeThickness: 4,
-      }
-    )
-    .setOrigin(0.5)
-    .setAlpha(0)
-    .setDepth(1000);
+      })
+      .setOrigin(0.5)
+      .setAlpha(0)
+      .setDepth(1000);
 
     // Текст счёта сверху (соперник)
     this.scoreTextTop = scene.add
@@ -144,6 +140,4 @@ export class MessageHandler {
 
     showNext();
   }
-
-
 }

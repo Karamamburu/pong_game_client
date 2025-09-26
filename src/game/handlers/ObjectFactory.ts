@@ -5,11 +5,10 @@ import {
   OPPONENT_WIDTH,
   OPPONENT_HEIGHT,
   BALL_SIZE,
-  INITIAL_BALL_SPEED,
   START_PLAYER_Y,
   START_OPPONENT_Y,
   START_BALL_X,
-  START_BALL_Y
+  START_BALL_Y,
 } from "../gameConstants";
 
 export class ObjectFactory {
@@ -17,7 +16,8 @@ export class ObjectFactory {
     scene: Phaser.Scene,
     x: number
   ): Phaser.Types.Physics.Arcade.ImageWithDynamicBody {
-    return scene.physics.add.image(x, START_PLAYER_Y, "")
+    return scene.physics.add
+      .image(x, START_PLAYER_Y, "")
       .setDisplaySize(PLAYER_WIDTH, PLAYER_HEIGHT)
       .setImmovable(true);
   }
@@ -26,7 +26,8 @@ export class ObjectFactory {
     scene: Phaser.Scene,
     x: number
   ): Phaser.Types.Physics.Arcade.ImageWithDynamicBody {
-    return scene.physics.add.image(x, START_OPPONENT_Y, "")
+    return scene.physics.add
+      .image(x, START_OPPONENT_Y, "")
       .setDisplaySize(OPPONENT_WIDTH, OPPONENT_HEIGHT)
       .setImmovable(true);
   }
@@ -34,8 +35,9 @@ export class ObjectFactory {
   public static createBall(
     scene: Phaser.Scene
   ): Phaser.Types.Physics.Arcade.ImageWithDynamicBody {
-    return scene.physics.add.image(START_BALL_X, START_BALL_Y, "")
+    return scene.physics.add
+      .image(START_BALL_X, START_BALL_Y, "")
       .setDisplaySize(BALL_SIZE, BALL_SIZE)
-      .setBounce(1, 1)
+      .setBounce(1, 1);
   }
 }
