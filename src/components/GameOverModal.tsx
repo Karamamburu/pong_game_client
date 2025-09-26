@@ -6,10 +6,11 @@ interface ModalProps {
   isOpen: boolean;
   message: string;
   touches: number;
+  difficultyLevel: string;
   onRestart: () => void;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, message, touches, onRestart }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, message, touches, difficultyLevel, onRestart }) => {
   if (!isOpen) return null;
 
   return (
@@ -17,6 +18,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, message, touches, onRestart }) =>
       <div className="modal-content">
         <h2>{message}</h2>
         <p>Касаний ракеток: {touches}</p>
+        <p>Уровень сложности: {difficultyLevel}</p>
         <button
           onClick={onRestart}
           className="regular-button"

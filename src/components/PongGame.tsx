@@ -81,6 +81,7 @@ const PongGame: React.FC = () => {
         message={resultMessage}
         touches={touches}
         onRestart={restartGame}
+        difficultyLevel={difficulty}
       />
     </div>
   );

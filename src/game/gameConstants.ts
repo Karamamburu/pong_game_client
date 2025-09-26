@@ -18,22 +18,22 @@ export const START_BALL_Y = GAME_HEIGHT / 2;
 
 //OBJECTS_BEHAVIOUR
 export const MIN_BALL_DIRECTION_ANGLE = -45;
-export const MAX_BALL_DIRECTION_ANGLE = -5;
+export const MAX_BALL_DIRECTION_ANGLE = 45;
 export const MAX_BOUNCE_DEG = 75;
 export const PLAYER_SPEED = 300;
 export const INITIAL_BALL_SPEED = 400;
-export const BOT_SPEED = 200;
+export const BOT_SPEED = 300;
 
 //ROUNDS_AND_WIN_SETTINGS
 export const RESTART_DELAY = 1000;
 export const WINNING_SCORE = 11;
 export const TIE_BREAK_SCORE_DIFFERENCE = 2;
 export const SPECIAL_SCORES = [
-      { player1: 7, player2: 0 },
-      { player1: 0, player2: 7 },
-      { player1: 9, player2: 1 },
-      { player1: 1, player2: 9 }
-    ];
+  { player1: 7, player2: 0 },
+  { player1: 0, player2: 7 },
+  { player1: 9, player2: 1 },
+  { player1: 1, player2: 9 },
+];
 
 //MESSAGES
 export const COUNTDOWN_VALUES = ["3", "2", "1", "Поехали!"];
@@ -42,3 +42,26 @@ export const DIFFICULTY_INCREASE_MESSAGE_DURATION = 600;
 //DIFFICULTY_MANAGEMENT
 export const BALL_SPEED_INCREASE_RATIO = 1.05;
 export const DIFFICULTY_INCREASE_INTERVAL = 10;
+export const DIFFICULTY_LEVELS = {
+  NORMAL: {
+    BALL_SPEED: 400,
+    PLAYER_SPEED: 300,
+    BOT_SPEED: 300,
+    MIN_BALL_DIRECTION_ANGLE: -45,
+    MAX_BALL_DIRECTION_ANGLE: 45,
+  },
+  NIGHTMARE: {
+    BALL_SPEED: 500,
+    PLAYER_SPEED: 400,
+    BOT_SPEED: 400,
+    MIN_BALL_DIRECTION_ANGLE: -35,
+    MAX_BALL_DIRECTION_ANGLE: 35,
+  },
+  HELL: {
+    BALL_SPEED: 600,
+    PLAYER_SPEED: 500,
+    BOT_SPEED: 500,
+    MIN_BALL_DIRECTION_ANGLE: -25,
+    MAX_BALL_DIRECTION_ANGLE: 25,
+  },
+};
