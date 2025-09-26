@@ -1,4 +1,8 @@
-import { SPECIAL_SCORES, WINNING_SCORE, TIE_BREAK_SCORE_DIFFERENCE } from "../gameConstants";
+import {
+  SPECIAL_SCORES,
+  WINNING_SCORE,
+  TIE_BREAK_SCORE_DIFFERENCE,
+} from "../gameConstants";
 
 export class GameStateHandler {
   public isGameOver: boolean = false;
@@ -6,19 +10,19 @@ export class GameStateHandler {
   checkPointScored(
     scene: Phaser.Scene,
     ball: Phaser.Types.Physics.Arcade.ImageWithDynamicBody
-  ): 'player' | 'opponent' | null {
+  ): "player" | "opponent" | null {
     const ballHeight = ball.displayHeight;
-    
+
     // Если мяч ушел за нижнюю границу - очко противнику
     if (ball.y - ballHeight / 2 > scene.scale.height) {
-      return 'opponent';
+      return "opponent";
     }
-    
+
     // Если мяч ушел за верхнюю границу - очко игроку
     if (ball.y + ballHeight / 2 < 0) {
-      return 'player';
+      return "player";
     }
-    
+
     return null;
   }
 
@@ -27,7 +31,7 @@ export class GameStateHandler {
     opponentScore: number
   ): { isOver: boolean; message: string } {
     const scoreDifference = Math.abs(playerScore - opponentScore);
-    
+
     // Функция для создания сообщения
     const getResultMessage = (isWin: boolean) => {
       if (isWin) {
@@ -36,7 +40,7 @@ export class GameStateHandler {
         return `Вы проиграли матч со счётом ${playerScore}:${opponentScore} :(`;
       }
     };
-    
+
     for (const score of SPECIAL_SCORES) {
       if (playerScore === score.player1 && opponentScore === score.player2) {
         this.isGameOver = true;
@@ -44,15 +48,18 @@ export class GameStateHandler {
         return { isOver: true, message };
       }
     }
-    
+
     // Стандартное завершение
     const maxScore = Math.max(playerScore, opponentScore);
-    if (maxScore >= WINNING_SCORE && scoreDifference >= TIE_BREAK_SCORE_DIFFERENCE) {
+    if (
+      maxScore >= WINNING_SCORE &&
+      scoreDifference >= TIE_BREAK_SCORE_DIFFERENCE
+    ) {
       this.isGameOver = true;
       const message = getResultMessage(playerScore > opponentScore);
       return { isOver: true, message };
     }
-    
+
     return { isOver: false, message: "" };
   }
 

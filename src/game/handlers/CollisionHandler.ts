@@ -23,7 +23,11 @@ export class CollisionHandler {
       // вычисляем точку попадания по X относительно центра ракетки
       const relativeIntersectX = ball.x - paddle.x;
       const halfWidth = paddle.displayWidth / 2;
-      const normalized = Phaser.Math.Clamp(relativeIntersectX / halfWidth, -1, 1);
+      const normalized = Phaser.Math.Clamp(
+        relativeIntersectX / halfWidth,
+        -1,
+        1
+      );
 
       // мапим на угол отскока (в радианах)
       const bounceAngle = normalized * maxBounceRad;
@@ -39,9 +43,11 @@ export class CollisionHandler {
 
       // корректируем позицию мяча, чтобы он не "застревал" в ракетке
       if (isPlayer) {
-        ball.y = paddle.y - paddle.displayHeight / 2 - ball.displayHeight / 2 - 1;
+        ball.y =
+          paddle.y - paddle.displayHeight / 2 - ball.displayHeight / 2 - 1;
       } else {
-        ball.y = paddle.y + paddle.displayHeight / 2 + ball.displayHeight / 2 + 1;
+        ball.y =
+          paddle.y + paddle.displayHeight / 2 + ball.displayHeight / 2 + 1;
       }
 
       ball.setVelocity(vx, vy);
@@ -57,14 +63,20 @@ export class CollisionHandler {
       });
 
       // небольшая случайная поправка по X чтобы избежать зацикливания (опционально)
-      const spinVariation = Phaser.Math.FloatBetween(-0.03, 0.03) * currentSpeed;
-      ball.setVelocity(ball.body.velocity.x + spinVariation, ball.body.velocity.y);
+      const spinVariation =
+        Phaser.Math.FloatBetween(-0.03, 0.03) * currentSpeed;
+      ball.setVelocity(
+        ball.body.velocity.x + spinVariation,
+        ball.body.velocity.y
+      );
 
       // callback для счётчика касаний
       callbacks?.onTouch?.();
     };
 
     scene.physics.add.collider(ball, player, () => handleHit(player, true));
-    scene.physics.add.collider(ball, opponent, () => handleHit(opponent, false));
+    scene.physics.add.collider(ball, opponent, () =>
+      handleHit(opponent, false)
+    );
   }
 }

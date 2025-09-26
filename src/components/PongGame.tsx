@@ -3,7 +3,12 @@ import { useLocation } from "react-router-dom";
 import Phaser from "phaser";
 import createPongScene from "../game/createPongScene";
 import Modal from "./GameOverModal";
-import { GAME_HEIGHT, GAME_WIDTH, DIFFICULTY_MAP, DIFFICULTY_LEVELS } from "../game/gameConstants";
+import {
+  GAME_HEIGHT,
+  GAME_WIDTH,
+  DIFFICULTY_MAP,
+  DIFFICULTY_LEVELS,
+} from "../game/gameConstants";
 
 const PongGame: React.FC = () => {
   const gameRef = useRef<Phaser.Game | null>(null);
@@ -39,7 +44,9 @@ const PongGame: React.FC = () => {
           setPlayerScore(player);
           setOpponentScore(opponent);
         },
-        difficulty: DIFFICULTY_MAP[difficulty] as keyof typeof DIFFICULTY_LEVELS,
+        difficulty: DIFFICULTY_MAP[
+          difficulty
+        ] as keyof typeof DIFFICULTY_LEVELS,
       }),
       parent: "game-container",
     });
@@ -50,27 +57,34 @@ const PongGame: React.FC = () => {
     };
   }, []);
 
-const restartGame = () => {
-  const scene = gameRef.current?.scene.keys["PongScene"] as any;
-  scene?.resetGame();
-  setIsGameOver(false); 
-};
+  const restartGame = () => {
+    const scene = gameRef.current?.scene.keys["PongScene"] as any;
+    scene?.resetGame();
+    setIsGameOver(false);
+    setPlayerScore(0);
+    setOpponentScore(0);
+    setTouches(0);
+  };
 
   return (
     <div style={{ position: "relative" }}>
       <div id="game-container" className="w-full h-full" />
-      <div style={{ 
-        position: "absolute", 
-        top: 10, 
-        left: 10, 
-        color: "#fff",
-        fontSize: "18px",
-        fontFamily: "Arial",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        padding: "5px 10px",
-        borderRadius: "5px"
-      }}>
-        <div>Счёт: {playerScore} - {opponentScore}</div>
+      <div
+        style={{
+          position: "absolute",
+          top: 10,
+          left: 10,
+          color: "#fff",
+          fontSize: "18px",
+          fontFamily: "Arial",
+          backgroundColor: "rgba(0,0,0,0.5)",
+          padding: "5px 10px",
+          borderRadius: "5px",
+        }}
+      >
+        <div>
+          Счёт: {playerScore} - {opponentScore}
+        </div>
         <div>Касаний: {touches}</div>
         <div>Сложность: {difficulty}</div>
       </div>

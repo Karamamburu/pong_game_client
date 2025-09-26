@@ -14,17 +14,18 @@ interface SceneConfig {
   onGameOver?: (message: string) => void;
   onTouch?: () => void;
   onScoreUpdate?: (playerScore: number, opponentScore: number) => void;
-  difficulty?: keyof typeof DIFFICULTY_LEVELS;   // 👈 добавили
+  difficulty?: keyof typeof DIFFICULTY_LEVELS; // 👈 добавили
 }
 
-
-export default function createPongScene(config: SceneConfig = {}): Phaser.Scene {
+export default function createPongScene(
+  config: SceneConfig = {}
+): Phaser.Scene {
   class PongScene extends Phaser.Scene {
     player!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
     opponent!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
     ball!: Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-    
+
     // Хендлеры
     scoreHandler!: ScoreHandler;
     roundHandler!: RoundHandler;
@@ -37,7 +38,6 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
     }
 
     create() {
-
       // Создаём объекты
       this.player = ObjectFactory.createPlayer(this, START_PLAYER_X);
       this.opponent = ObjectFactory.createOpponent(this, START_PLAYER_X);
@@ -53,7 +53,7 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
         this.messageHandler,
         config.difficulty || "NORMAL"
       );
-        this.difficultyHandler.applyInitialSettings(this.player, this.opponent);
+      this.difficultyHandler.applyInitialSettings(this.player, this.opponent);
       this.gameStateHandler.reset();
       this.scoreHandler = new ScoreHandler(
         this,
@@ -97,19 +97,18 @@ export default function createPongScene(config: SceneConfig = {}): Phaser.Scene 
       // Не обновляем игру если она завершена
       if (this.gameStateHandler.isGameOver) return;
 
-PaddleController.movePlayer(
-  this.player,
-  this.cursors,
-  this.input.keyboard!.addKeys("A,D"),
-  this.difficultyHandler.getSettings().PLAYER_SPEED
-);
+      PaddleController.movePlayer(
+        this.player,
+        this.cursors,
+        this.input.keyboard!.addKeys("A,D"),
+        this.difficultyHandler.getSettings().PLAYER_SPEED
+      );
 
-PaddleController.moveBot(
-  this.opponent,
-  this.ball,
-  this.difficultyHandler.getSettings().BOT_SPEED
-);
-
+      PaddleController.moveBot(
+        this.opponent,
+        this.ball,
+        this.difficultyHandler.getSettings().BOT_SPEED
+      );
 
       // Проверяем очки только когда мяч активен
       if (!this.roundHandler.isWaitingForRestart) {
@@ -119,21 +118,18 @@ PaddleController.moveBot(
         }
       }
     }
-        /** Перезапуск игры без изменения выбранной сложности */
-public resetGame() {
-  this.scoreHandler.reset();
-  this.roundHandler.resetBallToCenter(false);
-  this.gameStateHandler.reset();
-  this.difficultyHandler.applyInitialSettings(this.player, this.opponent);
+    /** Перезапуск игры без изменения выбранной сложности */
+    public resetGame() {
+      this.scoreHandler.reset();
+      this.roundHandler.resetBallToCenter(false);
+      this.gameStateHandler.reset();
+      this.difficultyHandler.applyInitialSettings(this.player, this.opponent);
 
-  this.messageHandler.showCountdown(() => {
-    this.roundHandler.startNewRound();
-  });
-}
-
+      this.messageHandler.showCountdown(() => {
+        this.roundHandler.startNewRound();
+      });
+    }
   }
 
   return new PongScene();
 }
-
-

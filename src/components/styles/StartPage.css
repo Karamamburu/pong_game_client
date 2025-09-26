@@ -4,7 +4,7 @@
   padding: 20px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   font-family: "Arial", sans-serif;
   color: #333;
 }
@@ -50,7 +50,7 @@
   padding: 15px;
   border-radius: 10px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .mode.disabled {
@@ -132,7 +132,8 @@
   margin-bottom: 15px;
 }
 
-.rating-table th, .rating-table td {
+.rating-table th,
+.rating-table td {
   padding: 8px;
   border-bottom: 1px solid #eee;
   text-align: left;
